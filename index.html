@@ -3,55 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hiroto Mochizuki - Profile</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #121212;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .profile-card {
-            background: #1e1e1e;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            width: 350px;
-        }
-        .profile-card h1 {
-            margin-bottom: 10px;
-            font-size: 24px;
-            color: #4db8ff;
-        }
-        .profile-card p {
-            margin: 5px 0;
-            font-size: 16px;
-        }
-        .section-title {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #ffcc00;
-            border-bottom: 1px solid #444;
-            padding-bottom: 5px;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            background: #2a2a2a;
-            margin: 5px 0;
-            padding: 8px;
-            border-radius: 8px;
-        }
-    </style>
+    <title>MindEase - Student Mental Health Support</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="profile-card">
-        <h1>Hiroto Mochizuki</h1>
+    <div class="app-container">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-brain"></i>
+                <span>MindEase</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link active" data-section="home"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="#chatbot" class="nav-link" data-section="chatbot"><i class="fas fa-comments"></i> AI Chat</a></li>
+                <li><a href="#stress-test" class="nav-link" data-section="stress-test"><i class="fas fa-heart-pulse"></i> Stress Test</a></li>
+                <li><a href="#breathing" class="nav-link" data-section="breathing"><i class="fas fa-lungs"></i> Breathing</a></li>
+                <li><a href="#quiz" class="nav-link" data-section="quiz"><i class="fas fa-brain"></i> Quiz Maker</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Home Section -->
+            <section id="home" class="section active">
+                <div class="hero">
+                    <h1>Welcome to MindEase</h1>
+                    <p>Your AI-powered companion for mental health support during test preparation</p>
+                    <div class="feature-grid">
+                        <div class="feature-card" data-section="chatbot">
+                            <i class="fas fa-comments"></i>
+                            <h3>AI Chatbot</h3>
+                            <p>Talk to our AI for emotional support and guidance</p>
+                        </div>
+                        <div class="feature-card" data-section="stress-test">
+                            <i class="fas fa-heart-pulse"></i>
+                            <h3>Stress Assessment</h3>
+                            <p>Evaluate your current stress levels</p>
+                        </div>
+                        <div class="feature-card" data-section="breathing">
+                            <i class="fas fa-lungs"></i>
+                            <h3>Breathing Exercises</h3>
+                            <p>Guided relaxation and mindfulness</p>
+                        </div>
+                        <div class="feature-card" data-section="quiz">
+                            <i class="fas fa-brain"></i>
+                            <h3>Quiz Maker</h3>
+                            <p>Create and practice with custom quizzes</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Chatbot Section -->
+            <section id="chatbot" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-comments"></i> AI Mental Health Companion</h2>
+                    <p>Share your feelings and get supportive guidance</p>
+                </div>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message bot-message">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <p>Hello! I'm here to support you through your test preparation journey. How are you feeling today?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chatInput" placeholder="Type your message here..." maxlength="500">
+                        <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stress Test Section -->
+            <section id="stress-test" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-heart-pulse"></i> Stress Level Assessment</h2>
+                    <p>Answer these questions to understand your current stress level</p>
+                </div>
+                <div class="stress-test-container">
+                    <div id="stressQuestions" class="questions-container">
+                        <!-- Questions will be dynamically loaded -->
+                    </div>
+                    <div id="stressResults" class="results-container hidden">
+                        <h3>Your Stress Level Results</h3>
+                        <div class="stress-meter">
+                            <div class="meter-bar">
+                                <div class="meter-fill" id="stressMeterFill"></div>
+                            </div>
+                            <div class="meter-labels">
+                                <span>Low</span>
+                                <span>Medium</span>
+                                <span>High</span>
+                            </div>
+                        </div>
+                        <div id="stressRecommendations" class="recommendations"></div>
+                        <button id="retakeTest" class="btn-secondary">Retake Test</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Breathing Exercise Section -->
+            <section id="breathing" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-lungs"></i> Guided Breathing Exercises</h2>
+                    <p>Relax and reduce stress with guided breathing techniques</p>
+                </div>
+                <div class="breathing-container">
+                    <div class="breathing-selector">
+                        <h3>Choose a breathing technique:</h3>
+                        <div class="technique-buttons">
+                            <button class="technique-btn active" data-technique="4-7-8">4-7-8 Breathing</button>
+                            <button class="technique-btn" data-technique="box">Box Breathing</button>
+                            <button class="technique-btn" data-technique="calm">Calm Breathing</button>
+                        </div>
+                    </div>
+                    <div class="breathing-exercise">
+                        <div class="breathing-circle" id="breathingCircle">
+                            <div class="breathing-text" id="breathingText">Click Start</div>
+                        </div>
+                        <div class="breathing-controls">
+                            <button id="startBreathing" class="btn-primary">Start</button>
+                            <button id="pauseBreathing" class="btn-secondary hidden">Pause</button>
+                            <button id="stopBreathing" class="btn-secondary">Reset</button>
+                        </div>
+                        <div class="session-info">
+                            <div>Session: <span id="sessionCount">0</span> cycles</div>
+                            <div>Duration: <span id="sessionDuration">0:00</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quiz Maker Section -->
+            <section id="quiz" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-brain"></i> Quiz Maker</h2>
+                    <p>Create and practice with custom quizzes for your tests</p>
+                </div>
+                <div class="quiz-container">
+                    <div class="quiz-tabs">
+                        <button class="tab-btn active" data-tab="create">Create Quiz</button>
+                        <button class="tab-btn" data-tab="library">Quiz Library</button>
+                        <button class="tab-btn" data-tab="practice">Practice</button>
+                    </div>
+
+                    <!-- Create Quiz Tab -->
+                    <div id="createTab" class="tab-content active">
+                        <div class="quiz-form">
+                            <input type="text" id="quizTitle" placeholder="Quiz Title" class="form-input">
+                            <textarea id="quizDescription" placeholder="Quiz Description (optional)" class="form-input"></textarea>
+                            
+                            <div class="questions-section">
+                                <h3>Questions</h3>
+                                <div id="questionsList" class="questions-list">
+                                    <!-- Questions will be added dynamically -->
+                                </div>
+                                <button id="addQuestion" class="btn-secondary">
+                                    <i class="fas fa-plus"></i> Add Question
+                                </button>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button id="saveQuiz" class="btn-primary">Save Quiz</button>
+                                <button id="clearQuiz" class="btn-secondary">Clear All</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Library Tab -->
+                    <div id="libraryTab" class="tab-content">
+                        <div class="quiz-library">
+                            <div class="library-header">
+                                <h3>Your Saved Quizzes</h3>
+                                <button id="importQuiz" class="btn-secondary">
+                                    <i class="fas fa-upload"></i> Import Quiz
+                                </button>
+                            </div>
+                            <div id="quizList" class="quiz-list">
+                                <!-- Saved quizzes will appear here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Practice Tab -->
+                    <div id="practiceTab" class="tab-content">
+                        <div id="quizSelector" class="quiz-selector">
+                            <h3>Select a quiz to practice:</h3>
+                            <div id="practiceQuizList" class="practice-quiz-list">
+                                <!-- Available quizzes for practice -->
+                            </div>
+                        </div>
+                        
+                        <div id="quizPractice" class="quiz-practice hidden">
+                            <div class="quiz-header">
+                                <h3 id="practiceQuizTitle"></h3>
+                                <div class="quiz-progress">
+                                    <span id="currentQuestion">1</span> / <span id="totalQuestions">10</span>
+                                </div>
+                            </div>
+                            
+                            <div class="question-container">
+                                <div id="questionText" class="question-text"></div>
+                                <div id="answerOptions" class="answer-options">
+                                    <!-- Answer options will be populated here -->
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-controls">
+                                <button id="prevQuestion" class="btn-secondary">Previous</button>
+                                <button id="nextQuestion" class="btn-primary">Next</button>
+                                <button id="submitQuiz" class="btn-primary hidden">Submit Quiz</button>
+                            </div>
+                        </div>
+                        
+                        <div id="quizResults" class="quiz-results hidden">
+                            <h3>Quiz Results</h3>
+                            <div class="results-summary">
+                                <div class="score-circle">
+                                    <span id="finalScore">0</span>%
+                                </div>
+                                <div class="results-details">
+                                    <p>Correct: <span id="correctAnswers">0</span></p>
+                                    <p>Incorrect: <span id="incorrectAnswers">0</span></p>
+                                    <p>Total: <span id="totalAnswered">0</span></p>
+                                </div>
+                            </div>
+                            <div class="results-actions">
+                                <button id="reviewAnswers" class="btn-secondary">Review Answers</button>
+                                <button id="retakeQuiz" class="btn-primary">Retake Quiz</button>
+                                <button id="backToLibrary" class="btn-secondary">Back to Library</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
