@@ -13,6 +13,8 @@ class MindEaseApp {
         this.currentQuiz = null;
         this.currentQuestionIndex = 0;
         this.userAnswers = [];
+        this.progressData = JSON.parse(localStorage.getItem('mindease-progress')) || this.initializeProgressData();
+        this.personalityProfile = JSON.parse(localStorage.getItem('mindease-personality')) || null;
         
         this.init();
     }
@@ -23,6 +25,8 @@ class MindEaseApp {
         this.setupStressTest();
         this.setupBreathingExercise();
         this.setupQuizMaker();
+        this.setupStudyCoach();
+        this.setupProgressTracking();
         this.loadStressTestQuestions();
         this.loadQuizLibrary();
     }
@@ -113,54 +117,208 @@ class MindEaseApp {
     generateAIResponse(userMessage) {
         const message = userMessage.toLowerCase();
         
-        // Mental health supportive responses
-        const responses = {
-            stress: [
-                "I understand you're feeling stressed. Remember that stress before tests is completely normal. Would you like to try a breathing exercise?",
-                "Stress can feel overwhelming, but you have the strength to manage it. Let's break down what's worrying you most.",
-                "It's okay to feel stressed about upcoming tests. You've prepared, and that shows your dedication. Take things one step at a time."
-            ],
-            anxiety: [
-                "Anxiety before tests is very common. You're not alone in feeling this way. Remember to focus on what you can control.",
-                "I hear that you're feeling anxious. Try to remember that this feeling will pass. You've overcome challenges before.",
-                "Anxiety can make everything feel bigger than it is. Let's focus on some grounding techniques to help you feel more centered."
-            ],
-            overwhelmed: [
-                "Feeling overwhelmed is a sign that you care about doing well. Let's break down your tasks into smaller, manageable pieces.",
-                "When everything feels like too much, remember that you only need to focus on one thing at a time. What's the most important task right now?",
-                "It's completely understandable to feel overwhelmed. You're handling a lot. Be kind to yourself and take breaks when you need them."
-            ],
-            confident: [
-                "That's wonderful to hear! Confidence is a great foundation for success. Keep that positive energy going.",
-                "I'm so glad you're feeling confident! Remember this feeling and carry it with you into your test.",
-                "Your confidence shows that you believe in yourself, and that's half the battle. You've got this!"
-            ],
-            tired: [
-                "Rest is just as important as studying. Make sure you're getting enough sleep before your test.",
-                "Feeling tired can make everything harder. Have you been taking breaks during your study sessions?",
-                "Your brain needs rest to perform at its best. Consider taking a short break or doing a breathing exercise."
-            ]
+        // Advanced sentiment analysis
+        const sentiment = this.analyzeSentiment(message);
+        const context = this.getConversationContext();
+        
+        // Comprehensive keyword patterns with emotional intelligence
+        const keywordPatterns = {
+            // Stress-related keywords
+            stress: {
+                keywords: ['stress', 'stressed', 'stressing', 'pressure', 'pressured'],
+                responses: [
+                    "I can sense you're feeling stressed right now. That's completely understandable - tests can create a lot of pressure. Remember, stress is your mind's way of showing you care about succeeding. Let's work through this together. Would you like to try a quick breathing exercise, or would you prefer to talk about what's specifically causing the most stress?",
+                    "Stress before tests is incredibly common, and you're definitely not alone in feeling this way. Your body is responding to what feels like a challenge, which actually shows how much you care about doing well. Let's focus on managing this stress step by step. What feels most overwhelming right now?",
+                    "I hear that you're experiencing stress, and I want you to know that's a normal response to upcoming tests. The good news is that we can work together to transform that stress into focused energy. Would you like some personalized stress management techniques, or shall we break down your concerns into smaller, manageable pieces?"
+                ]
+            },
+            
+            // Anxiety patterns
+            anxiety: {
+                keywords: ['anxious', 'anxiety', 'worried', 'worry', 'nervous', 'scared', 'afraid', 'panic'],
+                responses: [
+                    "Anxiety can feel really intense, but you're showing incredible strength by reaching out. Test anxiety affects many students, and there are proven ways to manage it. Remember that anxiety often makes situations seem bigger than they actually are. Let's ground you in the present moment - can you tell me three things you can see around you right now?",
+                    "I understand you're feeling anxious, and that takes courage to share. Anxiety before tests is your mind trying to protect you, but sometimes it goes into overdrive. You've handled difficult situations before, and you have the tools to handle this too. Would you like to explore some anxiety-reducing techniques, or would talking through your specific worries help more?",
+                    "Anxiety can make everything feel uncertain, but let's focus on what you do know and what you can control. You're prepared, you're capable, and anxiety doesn't define your abilities. Let's work on some techniques to calm your nervous system. Would you prefer a guided breathing exercise or some positive visualization?"
+                ]
+            },
+            
+            // Overwhelm and burnout
+            overwhelmed: {
+                keywords: ['overwhelmed', 'too much', 'cant handle', 'drowning', 'exhausted', 'burnout', 'burn out'],
+                responses: [
+                    "Feeling overwhelmed is a clear signal that you're carrying a heavy load, and it's completely understandable. When everything feels like 'too much,' it often helps to step back and prioritize. You don't have to do everything perfectly - you just need to do your best with what you have. Let's break this down: what's the one most important thing you need to focus on today?",
+                    "I can hear that you're feeling overwhelmed, and that's a very human response to academic pressure. Remember, being overwhelmed doesn't mean you can't handle this - it just means you need to approach things differently. Let's create a plan that feels manageable. What would make the biggest difference in reducing your stress right now?",
+                    "Overwhelm is often our mind's way of saying we need to slow down and reorganize. You're dealing with a lot, and it's okay to feel this way. The good news is that overwhelm is temporary and manageable. Would you like help creating a priority list, or would you prefer to start with some calming techniques to clear your mind first?"
+                ]
+            },
+            
+            // Confidence and positive states
+            confident: {
+                keywords: ['confident', 'ready', 'prepared', 'good', 'great', 'positive', 'excited'],
+                responses: [
+                    "I love hearing that confidence in your voice! That positive energy is going to serve you so well. Confidence is built on preparation and self-belief, and it sounds like you have both. How are you planning to maintain this great mindset leading up to your test?",
+                    "That's fantastic! Confidence is one of the best predictors of success, and you're clearly in a great mental space. This positive attitude will help you think more clearly and perform better. What strategies have been working best for building your confidence?",
+                    "Your confidence is wonderful to hear! It shows that your preparation is paying off and you believe in your abilities. Remember this feeling - you can tap into it whenever you need a boost. What's been most helpful in building this confidence?"
+                ]
+            },
+            
+            // Fatigue and sleep issues
+            tired: {
+                keywords: ['tired', 'exhausted', 'sleepy', 'fatigue', 'sleep', 'insomnia', 'cant sleep'],
+                responses: [
+                    "Rest is absolutely crucial for both learning and test performance. When you're tired, everything feels harder than it actually is. Your brain consolidates memories during sleep, so adequate rest isn't just recovery - it's actually part of effective studying. What's been affecting your sleep most?",
+                    "Feeling tired can make studying feel impossible and increase anxiety. It's important to remember that quality rest isn't time wasted - it's an investment in your performance. Have you been able to maintain a consistent sleep schedule, or has test stress been keeping you up?",
+                    "Fatigue can be both physical and mental, especially during intense study periods. Sometimes the kindest thing you can do for yourself is to rest rather than push through exhaustion. Would you like some tips for better sleep hygiene, or are you looking for ways to study more effectively when you're feeling tired?"
+                ]
+            },
+            
+            // Study and preparation concerns
+            studying: {
+                keywords: ['study', 'studying', 'preparation', 'prepare', 'review', 'material', 'notes'],
+                responses: [
+                    "It sounds like you're focused on preparation, which is great! Effective studying is about quality, not just quantity. What study methods have been working best for you so far? I can suggest some evidence-based techniques that might help you feel even more prepared.",
+                    "Preparation is key to feeling confident, and it's clear you're taking this seriously. Remember that effective studying includes breaks and self-care too. How are you balancing study time with rest and stress management?",
+                    "Your dedication to studying shows how much you care about succeeding. Sometimes the most productive thing you can do is step back and assess whether your study methods are serving you well. Would you like some tips for more effective studying, or are you looking for help with motivation?"
+                ]
+            },
+            
+            // Time management issues
+            time: {
+                keywords: ['time', 'deadline', 'running out', 'late', 'behind', 'schedule', 'cramming'],
+                responses: [
+                    "Time pressure can definitely increase stress, but remember that you still have time to make a positive impact on your preparation. It's better to study strategically with limited time than to panic. Let's focus on the most high-yield study activities. What are the most important topics you need to review?",
+                    "When time feels short, it's important to work smarter, not just harder. Panic about time often leads to inefficient studying. Let's create a realistic plan for the time you have left. What feels most urgent to address first?",
+                    "Time constraints can feel overwhelming, but you can still make meaningful progress. Focus on reviewing key concepts rather than trying to learn everything perfectly. What study materials do you feel most confident about, and what needs the most attention?"
+                ]
+            },
+            
+            // Failure and performance fears
+            failure: {
+                keywords: ['fail', 'failure', 'failing', 'bad grade', 'not good enough', 'stupid', 'dumb'],
+                responses: [
+                    "I hear worry about performance in what you're sharing, and those fears are completely understandable. But please remember that your worth as a person is not determined by any test score. You are not your grades. You have value beyond academic performance, and one test doesn't define your intelligence or potential.",
+                    "Fear of failure can actually interfere with performance by creating anxiety that gets in the way of clear thinking. You are capable and prepared. Instead of focusing on what might go wrong, let's focus on what you've already accomplished and what you can control right now.",
+                    "Those self-critical thoughts aren't helping you right now. You wouldn't speak to a friend the way you might be speaking to yourself. You're working hard, you're trying your best, and that matters more than any grade. What would you tell a good friend who was feeling the same way?"
+                ]
+            }
         };
-
-        // Check for keywords and respond appropriately
-        for (const [keyword, responseArray] of Object.entries(responses)) {
-            if (message.includes(keyword)) {
-                return responseArray[Math.floor(Math.random() * responseArray.length)];
+        
+        // Check for complex patterns and context
+        let selectedResponse = null;
+        let matchedCategory = null;
+        
+        for (const [category, data] of Object.entries(keywordPatterns)) {
+            for (const keyword of data.keywords) {
+                if (message.includes(keyword)) {
+                    selectedResponse = data.responses[Math.floor(Math.random() * data.responses.length)];
+                    matchedCategory = category;
+                    break;
+                }
+            }
+            if (selectedResponse) break;
+        }
+        
+        // If no specific pattern matched, provide contextual general responses
+        if (!selectedResponse) {
+            const generalResponses = [
+                "Thank you for sharing that with me. I'm here to listen and support you through this challenging time. What's on your mind about your upcoming tests?",
+                "I appreciate you opening up. Every student's experience is unique, and I want to understand what would be most helpful for you right now. What's your biggest concern?",
+                "It takes courage to reach out when you're struggling. Remember that seeking support is a sign of strength, not weakness. How are you feeling about your test preparation overall?",
+                "I'm here to support you in whatever way feels most helpful. Whether you need study strategies, stress management techniques, or just someone to listen, I'm here for you. What would feel most supportive right now?",
+                "Your feelings and experiences are valid, whatever they are. Many students face similar challenges, and you're not alone in this. What aspect of test preparation feels most challenging right now?",
+                "I believe in your ability to work through whatever you're facing. You've overcome challenges before, and you have the strength to handle this too. What strategies have helped you in difficult situations before?",
+                "Remember that this test is just one moment in your educational journey. It doesn't define your worth or your potential. You've made it through 100% of your difficult days so far - that's an incredible track record!"
+            ];
+            
+            selectedResponse = generalResponses[Math.floor(Math.random() * generalResponses.length)];
+        }
+        
+        // Add personalized elements based on conversation context
+        if (context.previousTopics.length > 0) {
+            const followUp = this.generateContextualFollowUp(matchedCategory, context);
+            if (followUp) {
+                selectedResponse += ` ${followUp}`;
             }
         }
-
-        // General supportive responses
-        const generalResponses = [
-            "Thank you for sharing that with me. How are you feeling about your upcoming tests?",
-            "I'm here to support you through this. What's one thing that would help you feel more prepared?",
-            "Remember that your worth isn't determined by test scores. You're doing your best, and that's what matters.",
-            "It sounds like you're working hard. What strategies have been most helpful for you so far?",
-            "Every step you take in preparation is progress. How can I help you feel more confident today?",
-            "I believe in your ability to handle whatever comes your way. What's your biggest concern right now?",
-            "You've made it through 100% of your difficult days so far. That's a pretty good track record!"
-        ];
-
-        return generalResponses[Math.floor(Math.random() * generalResponses.length)];
+        
+        // Store conversation context
+        this.updateConversationContext(matchedCategory, sentiment, userMessage);
+        
+        return selectedResponse;
+    }
+    
+    analyzeSentiment(message) {
+        const positiveWords = ['good', 'great', 'excellent', 'confident', 'ready', 'prepared', 'happy', 'excited', 'calm', 'relaxed'];
+        const negativeWords = ['bad', 'terrible', 'awful', 'stressed', 'anxious', 'worried', 'overwhelmed', 'tired', 'scared', 'nervous'];
+        const intensifiers = ['very', 'extremely', 'really', 'so', 'incredibly', 'totally'];
+        
+        let sentiment = 0;
+        const words = message.toLowerCase().split(' ');
+        
+        for (let i = 0; i < words.length; i++) {
+            const word = words[i];
+            const prevWord = i > 0 ? words[i-1] : null;
+            const multiplier = intensifiers.includes(prevWord) ? 2 : 1;
+            
+            if (positiveWords.includes(word)) {
+                sentiment += 1 * multiplier;
+            } else if (negativeWords.includes(word)) {
+                sentiment -= 1 * multiplier;
+            }
+        }
+        
+        return sentiment;
+    }
+    
+    getConversationContext() {
+        if (!this.conversationContext) {
+            this.conversationContext = {
+                previousTopics: [],
+                dominantSentiment: 0,
+                sessionStartTime: Date.now(),
+                messageCount: 0
+            };
+        }
+        return this.conversationContext;
+    }
+    
+    updateConversationContext(category, sentiment, message) {
+        const context = this.getConversationContext();
+        context.messageCount++;
+        context.dominantSentiment = (context.dominantSentiment + sentiment) / 2;
+        
+        if (category && !context.previousTopics.includes(category)) {
+            context.previousTopics.push(category);
+        }
+        
+        // Keep only last 5 topics for relevance
+        if (context.previousTopics.length > 5) {
+            context.previousTopics.shift();
+        }
+    }
+    
+    generateContextualFollowUp(currentCategory, context) {
+        const followUps = {
+            stress: [
+                "I noticed we've talked about stress before. How are the techniques we discussed working for you?",
+                "Since stress seems to be a recurring concern, would you like to explore some long-term stress management strategies?"
+            ],
+            anxiety: [
+                "I remember you mentioned anxiety earlier. Have you tried any of the grounding techniques we discussed?",
+                "Anxiety seems to be something you're working through. Would you like to explore what specifically triggers these feelings?"
+            ],
+            tired: [
+                "Rest came up in our previous conversation too. How has your sleep been since we last talked?",
+                "I notice fatigue is a pattern for you. Let's focus on some sustainable energy management strategies."
+            ]
+        };
+        
+        if (currentCategory && context.previousTopics.includes(currentCategory) && followUps[currentCategory]) {
+            return followUps[currentCategory][Math.floor(Math.random() * followUps[currentCategory].length)];
+        }
+        
+        return null;
     }
 
     // Stress Test Feature
@@ -794,6 +952,365 @@ class MindEaseApp {
         this.currentQuiz = null;
         this.currentQuestionIndex = 0;
         this.userAnswers = [];
+    }
+    
+    // AI Study Coach Feature
+    setupStudyCoach() {
+        const studyCoachButton = document.getElementById('studyCoachButton');
+        if (studyCoachButton) {
+            studyCoachButton.addEventListener('click', () => {
+                this.showStudyCoachRecommendations();
+            });
+        }
+    }
+    
+    showStudyCoachRecommendations() {
+        const recommendations = this.generateStudyRecommendations();
+        const container = document.getElementById('studyCoachRecommendations');
+        
+        if (container) {
+            container.innerHTML = `
+                <div class="study-coach-panel">
+                    <h3><i class="fas fa-graduation-cap"></i> Your AI Study Coach</h3>
+                    <div class="recommendations">
+                        ${recommendations.map(rec => `
+                            <div class="recommendation-card">
+                                <div class="rec-icon"><i class="${rec.icon}"></i></div>
+                                <div class="rec-content">
+                                    <h4>${rec.title}</h4>
+                                    <p>${rec.description}</p>
+                                    ${rec.action ? `<button class="btn-secondary" onclick="${rec.action}">${rec.actionText}</button>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            container.classList.remove('hidden');
+        }
+    }
+    
+    generateStudyRecommendations() {
+        const now = new Date();
+        const timeOfDay = now.getHours();
+        const progress = this.progressData;
+        const recentStress = progress.stressLevels.slice(-3);
+        const avgStress = recentStress.length > 0 ? recentStress.reduce((a, b) => a + b, 0) / recentStress.length : 2;
+        
+        let recommendations = [];
+        
+        // Time-based recommendations
+        if (timeOfDay < 12) {
+            recommendations.push({
+                icon: 'fas fa-sun',
+                title: 'Morning Study Boost',
+                description: 'Morning is great for learning new concepts. Your brain is fresh and ready to absorb information. Consider tackling your most challenging topics now.',
+                action: null
+            });
+        } else if (timeOfDay < 17) {
+            recommendations.push({
+                icon: 'fas fa-clock',
+                title: 'Afternoon Review',
+                description: 'Perfect time for reviewing and reinforcing what you learned this morning. Practice problems and flashcards work well now.',
+                action: 'mindease.navigateToSection("quiz")',
+                actionText: 'Create Practice Quiz'
+            });
+        } else {
+            recommendations.push({
+                icon: 'fas fa-moon',
+                title: 'Evening Wind-Down',
+                description: 'Light review and preparation for tomorrow. Avoid intense studying close to bedtime to protect your sleep quality.',
+                action: 'mindease.navigateToSection("breathing")',
+                actionText: 'Try Breathing Exercise'
+            });
+        }
+        
+        // Stress-based recommendations
+        if (avgStress > 2.5) {
+            recommendations.push({
+                icon: 'fas fa-heart',
+                title: 'Stress Management Priority',
+                description: 'Your recent stress levels suggest you need more balance. Take breaks every 25-30 minutes, and don\'t forget to breathe deeply.',
+                action: 'mindease.navigateToSection("breathing")',
+                actionText: 'Start Breathing Exercise'
+            });
+        } else if (avgStress < 1.5) {
+            recommendations.push({
+                icon: 'fas fa-rocket',
+                title: 'High Energy Mode',
+                description: 'You\'re in a great mental state! This is perfect for tackling challenging material or learning new concepts.',
+                action: null
+            });
+        }
+        
+        // Progress-based recommendations
+        if (progress.sessionsThisWeek < 3) {
+            recommendations.push({
+                icon: 'fas fa-calendar-check',
+                title: 'Consistency Boost',
+                description: 'Regular study sessions lead to better retention. Try to use MindEase tools at least 3-4 times per week for optimal results.',
+                action: null
+            });
+        }
+        
+        // Personalized technique recommendations
+        const favoriteBreathing = this.getMostUsedBreathingTechnique();
+        if (favoriteBreathing) {
+            recommendations.push({
+                icon: 'fas fa-lungs',
+                title: 'Your Favorite Technique',
+                description: `You\'ve found success with ${favoriteBreathing} breathing. Consider using it before important study sessions or tests.`,
+                action: 'mindease.navigateToSection("breathing")',
+                actionText: 'Practice Now'
+            });
+        }
+        
+        // General study tips
+        recommendations.push({
+            icon: 'fas fa-lightbulb',
+            title: 'Study Tip of the Day',
+            description: this.getRandomStudyTip(),
+            action: null
+        });
+        
+        return recommendations.slice(0, 4); // Limit to 4 recommendations
+    }
+    
+    getMostUsedBreathingTechnique() {
+        const techniques = this.progressData.breathingTechniques;
+        let maxCount = 0;
+        let favorite = null;
+        
+        for (const [technique, count] of Object.entries(techniques)) {
+            if (count > maxCount) {
+                maxCount = count;
+                favorite = technique;
+            }
+        }
+        
+        return favorite;
+    }
+    
+    getRandomStudyTip() {
+        const tips = [
+            "Use the Pomodoro Technique: 25 minutes of focused study followed by a 5-minute break.",
+            "Teach concepts out loud to yourself or others - it strengthens understanding.",
+            "Create visual mind maps to connect related ideas and improve memory.",
+            "Study in different locations to strengthen memory associations.",
+            "Take practice tests in conditions similar to your actual exam.",
+            "Review material right before bed - your brain consolidates memories during sleep.",
+            "Use active recall: test yourself frequently instead of just re-reading notes.",
+            "Break complex topics into smaller, manageable chunks (chunking technique).",
+            "Use spaced repetition: review material at increasing intervals over time.",
+            "Connect new information to things you already know to improve retention."
+        ];
+        
+        return tips[Math.floor(Math.random() * tips.length)];
+    }
+    
+    // Progress Tracking Feature
+    setupProgressTracking() {
+        // Track daily activities
+        this.recordDailyActivity();
+        
+        // Show progress dashboard if requested
+        const progressButton = document.getElementById('progressButton');
+        if (progressButton) {
+            progressButton.addEventListener('click', () => {
+                this.showProgressDashboard();
+            });
+        }
+    }
+    
+    initializeProgressData() {
+        const initialData = {
+            startDate: new Date().toISOString(),
+            stressLevels: [],
+            sessionsThisWeek: 0,
+            totalSessions: 0,
+            breathingTechniques: {
+                '4-7-8': 0,
+                'box': 0,
+                'calm': 0
+            },
+            chatInteractions: 0,
+            quizzesTaken: 0,
+            averageStressReduction: 0,
+            streakDays: 0,
+            lastActiveDate: new Date().toISOString().split('T')[0]
+        };
+        
+        localStorage.setItem('mindease-progress', JSON.stringify(initialData));
+        return initialData;
+    }
+    
+    recordDailyActivity() {
+        const today = new Date().toISOString().split('T')[0];
+        
+        if (this.progressData.lastActiveDate !== today) {
+            // New day - reset daily counters and update streak
+            const lastActive = new Date(this.progressData.lastActiveDate);
+            const todayDate = new Date(today);
+            const daysDiff = Math.floor((todayDate - lastActive) / (1000 * 60 * 60 * 24));
+            
+            if (daysDiff === 1) {
+                this.progressData.streakDays += 1;
+            } else if (daysDiff > 1) {
+                this.progressData.streakDays = 1; // Reset streak
+            }
+            
+            this.progressData.lastActiveDate = today;
+            this.progressData.sessionsThisWeek = 0; // Reset if it's a new week
+        }
+        
+        this.progressData.totalSessions += 1;
+        this.progressData.sessionsThisWeek += 1;
+        this.saveProgressData();
+    }
+    
+    recordStressLevel(level) {
+        this.progressData.stressLevels.push(level);
+        
+        // Keep only last 30 stress level records
+        if (this.progressData.stressLevels.length > 30) {
+            this.progressData.stressLevels.shift();
+        }
+        
+        this.calculateStressReduction();
+        this.saveProgressData();
+    }
+    
+    recordBreathingSession(technique) {
+        if (this.progressData.breathingTechniques[technique] !== undefined) {
+            this.progressData.breathingTechniques[technique] += 1;
+        }
+        this.saveProgressData();
+    }
+    
+    recordChatInteraction() {
+        this.progressData.chatInteractions += 1;
+        this.saveProgressData();
+    }
+    
+    recordQuizCompletion() {
+        this.progressData.quizzesTaken += 1;
+        this.saveProgressData();
+    }
+    
+    calculateStressReduction() {
+        const levels = this.progressData.stressLevels;
+        if (levels.length < 2) return;
+        
+        let totalReduction = 0;
+        let reductionCount = 0;
+        
+        for (let i = 1; i < levels.length; i++) {
+            if (levels[i] < levels[i-1]) {
+                totalReduction += (levels[i-1] - levels[i]);
+                reductionCount++;
+            }
+        }
+        
+        this.progressData.averageStressReduction = reductionCount > 0 ? totalReduction / reductionCount : 0;
+    }
+    
+    saveProgressData() {
+        localStorage.setItem('mindease-progress', JSON.stringify(this.progressData));
+    }
+    
+    showProgressDashboard() {
+        const container = document.getElementById('progressDashboard');
+        const progress = this.progressData;
+        
+        if (container) {
+            container.innerHTML = `
+                <div class="progress-dashboard">
+                    <h3><i class="fas fa-chart-line"></i> Your Mental Health Journey</h3>
+                    
+                    <div class="progress-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-fire"></i></div>
+                            <div class="stat-content">
+                                <h4>${progress.streakDays}</h4>
+                                <p>Day Streak</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
+                            <div class="stat-content">
+                                <h4>${progress.sessionsThisWeek}</h4>
+                                <p>Sessions This Week</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-comments"></i></div>
+                            <div class="stat-content">
+                                <h4>${progress.chatInteractions}</h4>
+                                <p>Chat Conversations</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-brain"></i></div>
+                            <div class="stat-content">
+                                <h4>${progress.quizzesTaken}</h4>
+                                <p>Quizzes Completed</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-charts">
+                        <div class="chart-section">
+                            <h4>Recent Stress Levels</h4>
+                            <div class="stress-trend">
+                                ${this.generateStressTrendChart()}
+                            </div>
+                        </div>
+                        
+                        <div class="chart-section">
+                            <h4>Favorite Breathing Techniques</h4>
+                            <div class="breathing-stats">
+                                ${Object.entries(progress.breathingTechniques).map(([technique, count]) => `
+                                    <div class="technique-stat">
+                                        <span>${technique}</span>
+                                        <div class="stat-bar">
+                                            <div class="stat-fill" style="width: ${(count / Math.max(...Object.values(progress.breathingTechniques)) * 100) || 0}%"></div>
+                                        </div>
+                                        <span>${count}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${progress.averageStressReduction > 0 ? `
+                        <div class="achievement">
+                            <i class="fas fa-trophy"></i>
+                            <p>Great progress! You've reduced your stress levels by an average of ${progress.averageStressReduction.toFixed(1)} points per session.</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            container.classList.remove('hidden');
+        }
+    }
+    
+    generateStressTrendChart() {
+        const levels = this.progressData.stressLevels.slice(-10); // Last 10 readings
+        if (levels.length === 0) return '<p>No stress level data yet. Take a stress assessment to see your progress!</p>';
+        
+        const maxLevel = 4; // Maximum stress level
+        return levels.map((level, index) => `
+            <div class="stress-point" style="height: ${(level / maxLevel) * 100}%; background-color: ${this.getStressColor(level)};" title="Stress Level: ${level}/4"></div>
+        `).join('');
+    }
+    
+    getStressColor(level) {
+        if (level <= 1.5) return '#10b981'; // Green
+        if (level <= 2.5) return '#f59e0b'; // Yellow
+        return '#ef4444'; // Red
     }
 }
 
