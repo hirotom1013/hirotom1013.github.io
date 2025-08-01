@@ -80,6 +80,9 @@ class MindEaseApp {
 
             this.addMessage(message, 'user');
             chatInput.value = '';
+            
+            // Record chat interaction for progress tracking
+            this.recordChatInteraction();
 
             // Simulate AI response
             setTimeout(() => {
@@ -458,6 +461,9 @@ class MindEaseApp {
         const percentage = (totalScore / maxScore) * 100;
         
         this.showStressResults(percentage, totalScore);
+        
+        // Record stress level for progress tracking
+        this.recordStressLevel(percentage / 25); // Convert to 0-4 scale
     }
 
     showStressResults(percentage, totalScore) {
@@ -549,6 +555,9 @@ class MindEaseApp {
 
         const technique = techniques[this.currentBreathingTechnique];
         this.runBreathingCycle(technique);
+        
+        // Record breathing session for progress tracking
+        this.recordBreathingSession(this.currentBreathingTechnique);
     }
 
     runBreathingCycle(technique) {
