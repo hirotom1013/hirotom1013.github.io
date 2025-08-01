@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TestZen - AI Mental Health Support for Students</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 2rem 2rem;
+        }
+        
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+            color: white;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+            text-align: center;
+        }
+        
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+            text-align: center;
+        }
+        
+        .cta-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            width: 100%;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .breathing-circle {
+            width: 200px;
+            height: 200px;
+            border: 3px solid #667eea;
+            border-radius: 50%;
+            margin: 2rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+            animation-duration: 4s;
+            animation-iteration-count: infinite;
+        }
+        
+        .breathing-in {
+            animation-name: breathe-in;
+        }
+        
+        .breathing-out {
+            animation-name: breathe-out;
+        }
+        
+        @keyframes breathe-in {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); background-color: rgba(102, 126, 234, 0.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes breathe-out {
+            0% { transform: scale(1.2); background-color: rgba(102, 126, 234, 0.1); }
+            50% { transform: scale(1); }
+            100% { transform: scale(1.2); background-color: rgba(102, 126, 234, 0.1); }
+        }
+        
+        .mood-tracker {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .mood-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+        
+        .mood-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .mood-btn:hover, .mood-btn.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .affirmation-box {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .affirmation-text {
+            font-size: 1.3rem;
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 5rem 1rem 2rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">🧠 TestZen</div>
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+                <a href="#contact">Support</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section class="hero" id="home">
+            <h1>Your AI Mental Health Companion</h1>
+            <p>Overcome test anxiety and stress with personalized AI-powered support designed specifically for students</p>
+        </section>
+
+        <section class="features-grid" id="features">
+            <div class="feature-card" onclick="openModal('breathingModal')">
+                <div class="feature-icon">🫁</div>
+                <h3>Breathing Exercises</h3>
+                <p>Guided breathing techniques to calm your mind and reduce anxiety before tests</p>
+                <button class="cta-button">Start Breathing Exercise</button>
+            </div>
+
+            <div class="feature-card" onclick="openModal('moodModal')">
+                <div class="feature-icon">😌</div>
+                <h3>Mood Tracking</h3>
+                <p>Track your emotional state and receive personalized recommendations based on your feelings</p>
+                <button class="cta-button">Track Your Mood</button>
+            </div>
+
+            <div class="feature-card" onclick="openModal('affirmationModal')">
+                <div class="feature-icon">💭</div>
+                <h3>AI Affirmations</h3>
+                <p>Receive personalized positive affirmations and confidence boosters tailored to your needs</p>
+                <button class="cta-button">Get Affirmations</button>
+            </div>
+
+            <div class="feature-card" onclick="openModal('meditationModal')">
+                <div class="feature-icon">🧘</div>
+                <h3>Guided Meditation</h3>
+                <p>Short meditation sessions designed to reduce test anxiety and improve focus</p>
+                <button class="cta-button">Start Meditation</button>
+            </div>
+
+            <div class="feature-card" onclick="openModal('tipsModal')">
+                <div class="feature-icon">📚</div>
+                <h3>Study Tips</h3>
+                <p>AI-powered study strategies and test preparation techniques for better performance</p>
+                <button class="cta-button">Get Study Tips</button>
+            </div>
+
+            <div class="feature-card" onclick="openModal('progressModal')">
+                <div class="feature-icon">📈</div>
+                <h3>Progress Tracking</h3>
+                <p>Monitor your mental health journey and see improvements over time</p>
+                <button class="cta-button">View Progress</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Breathing Exercise Modal -->
+    <div id="breathingModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('breathingModal')">&times;</span>
+            <h2 style="text-align: center; color: #667eea;">Breathing Exercise</h2>
+            <div class="breathing-circle" id="breathingCircle">Breathe In</div>
+            <div style="text-align: center;">
+                <button class="cta-button" onclick="startBreathing()" id="breathingBtn">Start Exercise</button>
+                <p style="margin-top: 1rem; color: #666;">Follow the circle: breathe in as it expands, breathe out as it contracts</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mood Tracking Modal -->
+    <div id="moodModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('moodModal')">&times;</span>
+            <h2 style="text-align: center; color: #667eea;">How are you feeling today?</h2>
+            <div class="mood-tracker">
+                <div class="mood-buttons">
+                    <button class="mood-btn" onclick="selectMood('anxious', this)">😰 Anxious</button>
+                    <button class="mood-btn" onclick="selectMood('stressed', this)">😫 Stressed</button>
+                    <button class="mood-btn" onclick="selectMood('worried', this)">😟 Worried</button>
+                    <button class="mood-btn" onclick="selectMood('calm', this)">😌 Calm</button>
+                    <button class="mood-btn" onclick="selectMood('confident', this)">😊 Confident</button>
+                    <button class="mood-btn" onclick="selectMood('excited', this)">🤗 Excited</button>
+                </div>
+                <div id="moodResponse" style="margin-top: 2rem; display: none;">
+                    <h3>AI Recommendation:</h3>
+                    <p id="moodRecommendation"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Affirmations Modal -->
+    <div id="affirmationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('affirmationModal')">&times;</span>
+            <h2 style="text-align: center; color: #667eea;">Positive Affirmations</h2>
+            <div class="affirmation-box">
+                <div class="affirmation-text" id="affirmationText">
+                    Click below to receive a personalized affirmation
+                </div>
+                <button class="cta-button" onclick="generateAffirmation()" style="background: white; color: #667eea;">Generate New Affirmation</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meditation Modal -->
+    <div id="meditationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('meditationModal')">&times;</span>
+            <h2 style="text-align: center; color: #667eea;">Guided Meditation</h2>
+            <div style="text-align: center;">
+                <div style="background: #f8f9fa; padding: 2rem; border-radius: 10px; margin: 2rem 0;">
+                    <h3>5-Minute Test Anxiety Relief</h3>
+                    <p style="color: #666; margin: 1rem 0;">A short meditation designed specifically for pre-test relaxation</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="meditationProgress" style="width: 0%;"></div>
+                    </div>
+                    <button class="cta-button" onclick="startMeditation()" id="meditationBtn">Start Meditation</button>
+                </div>
+                <div id="meditationInstructions" style="display: none;">
+                    <p id="meditationText" style="font-size: 1.2rem; color: #333; margin: 2rem 0;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Study Tips Modal -->
+    <div id="tipsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('tipsModal')">&times;</span>
+            <h2 style="text-align: center; color: #667eea;">AI Study Tips</h2>
+            <div id="studyTipsContent">
+                <div style="text-align: center; margin: 2rem 0;">
+                    <button class="cta-button" onclick="generateStudyTips()">Get Personalized Study Tips</button>
+                </div>
+                <div id="tipsDisplay" style="display: none;">
+                    <div style="background: #f8f9fa; padding: 2rem; border-radius: 10px;">
+                        <ul id="tipsList" style="list-style: none; padding: 0;"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Modal -->
+    <div id="progressModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('progressModal')">&times;</span>
+            <h2 style="text-align: center; color: #667eea;">Your Progress</h2>
+            <div id="progressContent">
+                <div style="background: #f8f9fa; padding: 2rem; border-radius: 10px; margin: 2rem 0;">
+                    <h3>Mental Health Journey</h3>
+                    <div style="margin: 1rem 0;">
+                        <p>Breathing Exercises Completed: <span id="breathingCount">0</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div style="margin: 1rem 0;">
+                        <p>Meditation Sessions: <span id="meditationCount">0</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div style="margin: 1rem 0;">
+                        <p>Daily Check-ins: <span id="checkinCount">0</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for tracking
+        let breathingInterval;
+        let meditationInterval;
+        let progressData = {
+            breathing: 0,
+            meditation: 0,
+            checkins: 0
+        };
+
+        // Load progress from localStorage
+        function loadProgress() {
+            const saved = localStorage.getItem('testzen-progress');
+            if (saved) {
+                progressData = JSON.parse(saved);
+                updateProgressDisplay();
+            }
+        }
+
+        // Save progress to localStorage
+        function saveProgress() {
+            localStorage.setItem('testzen-progress', JSON.stringify(progressData));
+            updateProgressDisplay();
+        }
+
+        // Update progress display
+        function updateProgressDisplay() {
+            document.getElementById('breathingCount').textContent = progressData.breathing;
+            document.getElementById('meditationCount').textContent = progressData.meditation;
+            document.getElementById('checkinCount').textContent = progressData.checkins;
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.body.style.overflow = 'auto';
+            
+            // Stop any running exercises
+            if (breathingInterval) {
+                clearInterval(breathingInterval);
+                document.getElementById('breathingBtn').textContent = 'Start Exercise';
+                document.getElementById('breathingCircle').className = 'breathing-circle';
+            }
+            if (meditationInterval) {
+                clearInterval(meditationInterval);
+                document.getElementById('meditationBtn').textContent = 'Start Meditation';
+                document.getElementById('meditationProgress').style.width = '0%';
+            }
+        }
+
+        // Breathing exercise
+        function startBreathing() {
+            const circle = document.getElementById('breathingCircle');
+            const btn = document.getElementById('breathingBtn');
+            
+            if (breathingInterval) {
+                clearInterval(breathingInterval);
+                btn.textContent = 'Start Exercise';
+                circle.className = 'breathing-circle';
+                return;
+            }
+
+            btn.textContent = 'Stop Exercise';
+            let phase = 'in';
+            let count = 0;
+            
+            breathingInterval = setInterval(() => {
+                if (phase === 'in') {
+                    circle.textContent = 'Breathe In';
+                    circle.className = 'breathing-circle breathing-in';
+                    phase = 'out';
+                } else {
+                    circle.textContent = 'Breathe Out';
+                    circle.className = 'breathing-circle breathing-out';
+                    phase = 'in';
+                    count++;
+                }
+                
+                if (count >= 10) {
+                    clearInterval(breathingInterval);
+                    breathingInterval = null;
+                    btn.textContent = 'Start Exercise';
+                    circle.className = 'breathing-circle';
+                    circle.textContent = 'Complete!';
+                    progressData.breathing++;
+                    saveProgress();
+                    setTimeout(() => {
+                        circle.textContent = 'Breathe In';
+                    }, 2000);
+                }
+            }, 4000);
+        }
+
+        // Mood tracking
+        function selectMood(mood, button) {
+            // Remove previous selections
+            document.querySelectorAll('.mood-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Select current button
+            button.classList.add('selected');
+            
+            // Generate AI recommendation
+            const recommendations = {
+                anxious: "I understand you're feeling anxious. Try our breathing exercise or a short meditation. Remember: anxiety is temporary, but your strength is permanent. Consider breaking your study session into smaller, manageable chunks.",
+                stressed: "Stress before tests is normal. Let's work on some relaxation techniques. Take a 10-minute break, do some light stretching, and remember that you've prepared well. You've got this!",
+                worried: "It's natural to feel worried before a test. Channel that worry into motivation. Review your notes one more time, then practice some positive affirmations. Trust in your preparation.",
+                calm: "Great! You're in a wonderful state for learning and testing. Maintain this calm energy by staying hydrated and taking deep breaths. You're ready to succeed!",
+                confident: "Excellent! This confidence will serve you well. Keep this positive energy flowing by visualizing your success and remembering all the hard work you've put in.",
+                excited: "Your excitement is amazing! Channel this positive energy into focused preparation. Stay organized, get good rest, and trust in your abilities."
+            };
+            
+            document.getElementById('moodRecommendation').textContent = recommendations[mood];
+            document.getElementById('moodResponse').style.display = 'block';
+            
+            progressData.checkins++;
+            saveProgress();
+        }
+
+        // Affirmations
+        function generateAffirmation() {
+            const affirmations = [
+                "I am capable, prepared, and ready to succeed on this test.",
+                "My mind is clear, focused, and filled with the knowledge I need.",
+                "I trust in my abilities and the preparation I have done.",
+                "I approach this test with confidence and calm energy.",
+                "I have studied well and I am ready to show what I know.",
+                "Each breath I take brings me more peace and clarity.",
+                "I am stronger than my anxiety and more powerful than my fear.",
+                "My preparation has equipped me with everything I need to succeed.",
+                "I remain calm under pressure and think clearly during tests.",
+                "I believe in myself and my ability to perform well."
+            ];
+            
+            const randomAffirmation = affirmations[Math.floor(Math.random() * affirmations.length)];
+            document.getElementById('affirmationText').textContent = randomAffirmation;
+        }
+
+        // Meditation
+        function startMeditation() {
+            const btn = document.getElementById('meditationBtn');
+            const progress = document.getElementById('meditationProgress');
+            const instructions = document.getElementById('meditationInstructions');
+            const text = document.getElementById('meditationText');
+            
+            if (meditationInterval) {
+                clearInterval(meditationInterval);
+                btn.textContent = 'Start Meditation';
+                progress.style.width = '0%';
+                instructions.style.display = 'none';
+                return;
+            }
+
+            btn.textContent = 'Stop Meditation';
+            instructions.style.display = 'block';
+            
+            const steps = [
+                "Close your eyes and take a deep breath in through your nose...",
+                "Hold that breath for a moment, feeling the calm energy filling your body...",
+                "Slowly exhale through your mouth, releasing any tension or worry...",
+                "Continue breathing naturally, focusing only on the rhythm of your breath...",
+                "If your mind wanders to the test, gently bring it back to your breathing...",
+                "Imagine yourself feeling confident and prepared for your test...",
+                "See yourself answering questions with clarity and ease...",
+                "Feel the knowledge you've studied flowing freely in your mind...",
+                "Take one more deep breath, filling yourself with confidence...",
+                "When you're ready, slowly open your eyes, feeling calm and prepared."
+            ];
+            
+            let currentStep = 0;
+            text.textContent = steps[0];
+            
+            meditationInterval = setInterval(() => {
+                currentStep++;
+                const progressPercent = (currentStep / steps.length) * 100;
+                progress.style.width = progressPercent + '%';
+                
+                if (currentStep < steps.length) {
+                    text.textContent = steps[currentStep];
+                } else {
+                    clearInterval(meditationInterval);
+                    meditationInterval = null;
+                    btn.textContent = 'Start Meditation';
+                    text.textContent = "Meditation complete! You're ready to face your test with confidence.";
+                    progressData.meditation++;
+                    saveProgress();
+                }
+            }, 30000); // 30 seconds per step
+        }
+
+        // Study tips
+        function generateStudyTips() {
+            const tips = [
+                "🧠 Use the Pomodoro Technique: Study for 25 minutes, then take a 5-minute break",
+                "📝 Create a summary sheet of key concepts the night before your test",
+                "🎯 Focus on understanding concepts rather than memorizing facts",
+                "👥 Form study groups to discuss difficult topics with classmates",
+                "🍎 Eat brain-healthy foods like nuts, berries, and fish before studying",
+                "💤 Get at least 7-8 hours of sleep before your test day",
+                "📍 Use mnemonic devices to remember complex information",
+                "⏰ Arrive early to your test location to reduce last-minute stress",
+                "🧘 Practice visualization: imagine yourself succeeding on the test",
+                "📚 Review your notes multiple times using spaced repetition"
+            ];
+            
+            // Randomly select 5 tips
+            const selectedTips = [];
+            const usedIndices = new Set();
+            
+            while (selectedTips.length < 5) {
+                const randomIndex = Math.floor(Math.random() * tips.length);
+                if (!usedIndices.has(randomIndex)) {
+                    selectedTips.push(tips[randomIndex]);
+                    usedIndices.add(randomIndex);
+                }
+            }
+            
+            const tipsList = document.getElementById('tipsList');
+            tipsList.innerHTML = '';
+            
+            selectedTips.forEach(tip => {
+                const li = document.createElement('li');
+                li.style.cssText = 'padding: 1rem; margin: 0.5rem 0; background: white; border-radius: 8px; border-left: 4px solid #667eea;';
+                li.textContent = tip;
+                tipsList.appendChild(li);
+            });
+            
+            document.getElementById('tipsDisplay').style.display = 'block';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProgress();
+        });
+    </script>
+</body>
+</html>
